@@ -7,32 +7,113 @@ body { font-family: var(--font-frank), "Times New Roman", serif; color: #3a0a10;
   display: flex; justify-content: center; align-items: center;
   min-height: 100dvh;
 }
-/* keeps the image ratio and fits the screen (phone or TV) */
-.board {
+
+/* All board sizes are in "u": 1u = 1px of the original 1086px-wide artwork,
+   so every piece lines up at any board width. */
+.bf {
+  --bw: min(100vw, 860px);
+  --u: calc(var(--bw) / 1086);
+  width: var(--bw);
   position: relative;
-  width: min(100vw, calc(100dvh * 1086 / 1448));
-  aspect-ratio: 1086 / 1448;
-  background: url("/board.png") center / 100% 100% no-repeat;
-  container-type: inline-size;
+  display: flex; flex-direction: column;
+  /* side columns: a lead-in piece, then a section that repeats down */
+  background:
+    url("/parts/side-left-lead.png")  left  0 top calc(var(--u) * 346) / calc(var(--u) * 102) auto no-repeat,
+    url("/parts/side-left.png")       left  0 top calc(var(--u) * 530) / calc(var(--u) * 102) auto repeat-y,
+    url("/parts/side-right-lead.png") right 0 top calc(var(--u) * 346) / calc(var(--u) * 102) auto no-repeat,
+    url("/parts/side-right.png")      right 0 top calc(var(--u) * 756) / calc(var(--u) * 102) auto repeat-y,
+    radial-gradient(ellipse 70% 60% at 50% 45%, #f7efe1, #ecdfc8);
 }
-.slot {
-  position: absolute;
-  width: 23.5%;
+.bf-head, .bf-foot { display: block; width: 100%; height: auto; position: relative; }
+.bf-body {
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column; align-items: center;
+  gap: calc(var(--u) * 22);
+  padding: calc(var(--u) * 6) calc(var(--u) * 110) 0;
+}
+/* the footer's top is empty parchment, so let the last row sit over it */
+.bf-foot { margin-top: calc(var(--u) * -100); }
+
+/* banner: image end caps + stretched red middle (border-image) */
+.bn {
+  min-width: min(100%, calc(var(--u) * 682));
+  max-width: 100%;
+  height: calc(var(--u) * 90);
   display: flex; align-items: center; justify-content: center;
-  font-weight: 900;
-  font-size: 6.5cqw;
-  letter-spacing: 0.02em;
+  gap: calc(var(--u) * 26);
+  border-style: solid;
+  border-width: 0 calc(var(--u) * 92);
+  border-image: url("/parts/banner.png") 0 92 fill / 0 calc(var(--u) * 92) stretch;
+  padding: 0 calc(var(--u) * 20);
+}
+.bn-fleur { height: calc(var(--u) * 66); width: auto; flex: none; }
+.bn-text {
+  font-weight: 900; font-size: calc(var(--u) * 50); line-height: 1;
+  color: #f6e7c6; white-space: nowrap;
+  text-shadow: 0 calc(var(--u) * 2) 0 #2a0408, 0 0 calc(var(--u) * 6) rgba(0, 0, 0, .5);
+  padding-bottom: calc(var(--u) * 6);
+}
+
+/* row of boxes: --cols decides each box's width */
+.box-row {
+  --gap: calc(var(--u) * 12);
+  width: 100%;
+  display: flex; flex-wrap: wrap; justify-content: center;
+  gap: calc(var(--u) * 26) var(--gap);
+}
+.box-row > * { flex: 0 0 calc((100% - (var(--cols) - 1) * var(--gap)) / var(--cols)); }
+
+/* time box: image corners + stretched straight edges (border-image) */
+.tb {
+  position: relative;
+  container-type: inline-size;
+  min-height: calc(var(--u) * 284);
+  display: flex; flex-direction: column; align-items: center;
+  border-style: solid;
+  border-width: calc(var(--u) * 66);
+  border-image: url("/parts/box-frame.png") 66 fill / calc(var(--u) * 66) stretch;
+  padding: 0;
+}
+.tb > * { margin-inline: calc(var(--u) * -44); }
+.tb-label {
+  position: relative;
+  align-self: stretch;
+  margin-top: calc(var(--u) * -42);
+  height: calc(var(--u) * 47);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; line-height: 1; white-space: nowrap;
+  /* shrink in narrow boxes: 100cqw + 88u is the width the text can use */
+  font-size: min(calc(var(--u) * 34), (100cqw + var(--u) * 88) * 0.15);
+  color: #3d0910;
+}
+/* thin gold line between the label and the time, like the original */
+.tb-label::after {
+  content: ""; position: absolute; top: 100%; left: 0; right: 0;
+  height: calc(var(--u) * 10);
+  border: calc(var(--u) * 1.6) solid #c9a25a; border-bottom: 0;
+  border-radius: calc(var(--u) * 10) calc(var(--u) * 10) 0 0;
+  box-shadow: inset 0 calc(var(--u) * 1) 0 rgba(255, 255, 255, .7);
+  -webkit-mask: linear-gradient(#000 30%, transparent);
+          mask: linear-gradient(#000 30%, transparent);
+}
+.tb-time {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: calc(var(--u) * -40);
+  font-weight: 900; line-height: 1; letter-spacing: 0.02em;
+  font-size: min(calc(var(--u) * 72), (100cqw + var(--u) * 88) * 0.3);
   color: #5a0b14;
   text-shadow: 0 1px 0 rgba(255, 255, 255, .6);
   direction: ltr;
 }
-.r1 { top: 36.2%; height: 12.4%; }
-.r2 { top: 63.8%; height: 10.4%; }
-.r3 { top: 81.8%; height: 11%; }
-.right  { left: 65.8%; }
-.middle { left: 38.2%; }
-.left   { left: 10.8%; }
-.debug .slot { outline: 2px dashed red; background: rgba(255, 0, 0, .08); }
+.tb-orn {
+  position: absolute; left: 50%; translate: -50% 0; margin: 0;
+  width: calc(var(--u) * 72); height: auto; pointer-events: none;
+}
+.tb-orn-top    { top:    calc(var(--u) * -80); }
+.tb-orn-bottom { bottom: calc(var(--u) * -70); }
+
+.debug .tb, .debug .bn { outline: 2px dashed red; }
 
 /* ---------- admin + login ---------- */
 .panel-page { min-height: 100dvh; padding: 24px 16px; display: flex; justify-content: center; align-items: flex-start; }
@@ -69,3 +150,4 @@ button:disabled { opacity: .6; }
 .msg.err { color: #a11; }
 .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: .95rem; color: #7a5a3a; }
 .topbar button { width: auto; padding: 6px 12px; font-size: .95rem; }
+.demo-page { display: flex; justify-content: center; padding: 16px 0; }

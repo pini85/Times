@@ -3,7 +3,8 @@
 Prayer times board for the synagogue.
 
 - `/` – the board (phone or big screen). Refreshes the times every minute.
-- `/login` → `/admin` – edit the times. Add `?debug` to `/` to outline the slots.
+- `/login` → `/admin` – edit the times. Add `?debug` to `/` to outline the boxes and banners.
+- `/demo` – the board pieces in other arrangements (2 per row, 4 per row, extra banners).
 
 ## Setup
 
@@ -18,5 +19,24 @@ Prayer times board for the synagogue.
 Import the repo, add the env vars above, and add Upstash Redis from
 Vercel → Storage (it sets the Redis env vars for you).
 
-Slot positions are in `app/globals.css` (`.r1–.r3`, `.right/.middle/.left`);
+## Board pieces
+
+The board is built from reusable components in `components/board/`:
+
+```tsx
+<BoardFrame>                      {/* arch + title, columns, bottom */}
+  <Banner>ימות החול</Banner>      {/* as many as you like, any text */}
+  <BoxRow cols={2}>               {/* boxes per row; fewer boxes are centred */}
+    <TimeBox label="שחרית" time="06:30" />
+    <TimeBox label="מנחה" time="13:45" />
+  </BoxRow>
+</BoardFrame>
+```
+
+What the main board shows, and in what order, is in `lib/layout.ts`;
 slot names are in `lib/slots.ts`.
+
+The gold pieces in `public/parts/` are cut from `public/board.png` by
+`python3 scripts/extract-parts.py` (needs numpy + Pillow). The corners and
+ornaments come from the picture; the straight edges and fills stretch, so
+boxes and banners can be any size.
