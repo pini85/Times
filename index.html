@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>זמני תפילות</title>
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { background: #3a0a10; min-height: 100%; }
+  body {
+    display: flex; justify-content: center; align-items: center;
+    min-height: 100dvh;
+  }
+  /* The board keeps the image's ratio and shrinks to fit the screen */
+  .board {
+    position: relative;
+    width: min(100vw, calc(100dvh * 1086 / 1448));
+    aspect-ratio: 1086 / 1448;
+    background: url("board.png") center / 100% 100% no-repeat;
+    container-type: inline-size;
+  }
+  .slot {
+    position: absolute;
+    width: 23.5%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: "David Libre", "Frank Ruhl Libre", "Times New Roman", serif;
+    font-weight: 700;
+    font-size: 6.5cqw; /* scales with the board width */
+    color: #5a0b14;
+    direction: ltr;
+  }
+  /* rows */
+  .r1 { top: 36.2%; height: 12.4%; }
+  .r2 { top: 63.8%; height: 10.4%; }
+  .r3 { top: 81.8%; height: 11%; }
+  /* columns */
+  .right  { left: 65.8%; }
+  .middle { left: 38.2%; }
+  .left   { left: 10.8%; }
+</style>
+</head>
+<body>
+<main class="board" aria-label="זמני תפילות">
+  <!-- ימות החול -->
+  <div class="slot r1 right"  id="weekday-shacharit"></div>
+  <div class="slot r1 middle" id="weekday-mincha"></div>
+  <div class="slot r1 left"   id="weekday-arvit"></div>
+  <!-- שבת קודש -->
+  <div class="slot r2 right"  id="candle-lighting"></div>
+  <div class="slot r2 middle" id="erev-shabbat-mincha"></div>
+  <div class="slot r2 left"   id="shabbat-shacharit"></div>
+  <div class="slot r3 right"  id="shabbat-mincha"></div>
+  <div class="slot r3 middle" id="seuda-shlishit"></div>
+  <div class="slot r3 left"   id="motzash-arvit"></div>
+</main>
+<script>
+  // Edit the times here
+  const times = {
+    "weekday-shacharit":   "06:30",
+    "weekday-mincha":      "13:30",
+    "weekday-arvit":       "20:00",
+    "candle-lighting":     "16:15",
+    "erev-shabbat-mincha": "16:25",
+    "shabbat-shacharit":   "08:30",
+    "shabbat-mincha":      "16:00",
+    "seuda-shlishit":      "16:45",
+    "motzash-arvit":       "17:25",
+  };
+  for (const [id, t] of Object.entries(times)) {
+    document.getElementById(id).textContent = t;
+  }
+</script>
+</body>
+</html>
