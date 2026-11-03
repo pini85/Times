@@ -1,31 +1,20 @@
 "use client";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { SLOTS, type Times } from "@/lib/slots";
-import { DEFAULT_LAYOUT, type Block } from "@/lib/layout";
-import { BoardFrame, Banner, BoxRow, TimeBox } from "./board";
+import type { Layout } from "@/lib/layout";
+import LayoutView from "./LayoutView";
 
-const LABELS = Object.fromEntries(SLOTS.map((s) => [s.id, s.label]));
-
-// Shows the board, sized to fit the screen, and refreshes the times every
-// minute so a screen left on in the synagogue picks up changes.
-export default function Board({
-  initial,
-  layout = DEFAULT_LAYOUT,
-  debug,
-}: {
-  initial: Times;
-  layout?: Block[];
-  debug?: boolean;
-}) {
-  const [times, setTimes] = useState(initial);
+// Shows the board, sized to fit the screen, and refreshes it every minute
+// so a screen left on in the synagogue picks up changes.
+export default function Board({ initial, debug }: { initial: Layout; debug?: boolean }) {
+  const [layout, setLayout] = useState(initial);
   const [width, setWidth] = useState<string>();
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const id = setInterval(async () => {
       try {
-        const res = await fetch("/api/times", { cache: "no-store" });
-        if (res.ok) setTimes(await res.json());
+        const res = await fetch("/api/board", { cache: "no-store" });
+        if (res.ok) setLayout(await res.json());
       } catch {}
     }, 60_000);
     return () => clearInterval(id);
@@ -47,19 +36,7 @@ export default function Board({
 
   return (
     <main className="board-page" ref={ref}>
-      <BoardFrame width={width} debug={debug}>
-        {layout.map((b, i) =>
-          b.type === "banner" ? (
-            <Banner key={i}>{b.text}</Banner>
-          ) : (
-            <BoxRow key={i} cols={b.cols}>
-              {b.slots.map((id) => (
-                <TimeBox key={id} label={LABELS[id]} time={times[id]} />
-              ))}
-            </BoxRow>
-          ),
-        )}
-      </BoardFrame>
+      <LayoutView layout={layout} width={width} debug={debug} />
     </main>
   );
 }
