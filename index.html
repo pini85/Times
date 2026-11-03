@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>זמני תפילות</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@700;900&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; }
   html, body { background: #3a0a10; min-height: 100%; }
@@ -23,8 +26,10 @@
     position: absolute;
     width: 23.5%;
     display: flex; align-items: center; justify-content: center;
-    font-family: "David Libre", "Frank Ruhl Libre", "Times New Roman", serif;
-    font-weight: 700;
+    font-family: "Frank Ruhl Libre", "Times New Roman", serif;
+    font-weight: 900;
+    letter-spacing: 0.02em;
+    text-shadow: 0 1px 0 rgba(255,255,255,.6);
     font-size: 6.5cqw; /* scales with the board width */
     color: #5a0b14;
     direction: ltr;
@@ -37,6 +42,8 @@
   .right  { left: 65.8%; }
   .middle { left: 38.2%; }
   .left   { left: 10.8%; }
+  /* add ?debug to the URL to outline each slot */
+  .debug .slot { outline: 2px dashed red; background: rgba(255,0,0,.08); }
 </style>
 </head>
 <body>
@@ -54,18 +61,26 @@
   <div class="slot r3 left"   id="motzash-arvit"></div>
 </main>
 <script>
-  // Edit the times here
-  const times = {
-    "weekday-shacharit":   "06:30",
-    "weekday-mincha":      "13:30",
-    "weekday-arvit":       "20:00",
-    "candle-lighting":     "16:15",
-    "erev-shabbat-mincha": "16:25",
-    "shabbat-shacharit":   "08:30",
-    "shabbat-mincha":      "16:00",
-    "seuda-shlishit":      "16:45",
-    "motzash-arvit":       "17:25",
+  // Random placeholder times for now (hour range per slot)
+  const ranges = {
+    "weekday-shacharit":   [6, 8],
+    "weekday-mincha":      [13, 17],
+    "weekday-arvit":       [18, 21],
+    "candle-lighting":     [16, 19],
+    "erev-shabbat-mincha": [16, 19],
+    "shabbat-shacharit":   [7, 9],
+    "shabbat-mincha":      [13, 18],
+    "seuda-shlishit":      [16, 19],
+    "motzash-arvit":       [17, 20],
   };
+  const rand = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+  const pad = n => String(n).padStart(2, "0");
+  const times = Object.fromEntries(Object.entries(ranges).map(
+    ([id, [a, b]]) => [id, `${pad(rand(a, b))}:${pad(rand(0, 11) * 5)}`]
+  ));
+  if (new URLSearchParams(location.search).has("debug")) {
+    document.body.classList.add("debug");
+  }
   for (const [id, t] of Object.entries(times)) {
     document.getElementById(id).textContent = t;
   }
