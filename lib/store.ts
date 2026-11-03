@@ -19,9 +19,18 @@ async function read<T>(key: string): Promise<T | null> {
   }
 }
 
+// Vercel can't write files, so saving there needs Upstash Redis
+export class StorageMissing extends Error {
+  constructor() {
+    super("לא הוגדר אחסון. ב־Vercel הוסיפו Upstash Redis (לשונית Storage) ופרסו מחדש (Redeploy).");
+  }
+}
+
 async function write(key: string, value: unknown): Promise<void> {
   if (redis) {
     await redis.set(key, value);
+  } else if (process.env.VERCEL) {
+    throw new StorageMissing();
   } else {
     await fs.mkdir(DIR, { recursive: true });
     await fs.writeFile(path.join(DIR, `${key}.json`), JSON.stringify(value, null, 2));

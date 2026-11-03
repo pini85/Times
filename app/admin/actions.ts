@@ -12,11 +12,20 @@ async function check(layout: unknown): Promise<{ layout: Layout } | Result> {
   return "error" in r ? { ok: false, message: r.error } : r;
 }
 
+function failed(e: unknown): Result {
+  console.error(e);
+  return { ok: false, message: e instanceof store.StorageMissing ? e.message : "השמירה נכשלה, נסו שוב" };
+}
+
 // Publish to the live board
 export async function publish(layout: unknown): Promise<Result> {
   const r = await check(layout);
   if (!("layout" in r)) return r;
-  await store.saveLayout(r.layout);
+  try {
+    await store.saveLayout(r.layout);
+  } catch (e) {
+    return failed(e);
+  }
   revalidatePath("/");
   return { ok: true, message: "הלוח עודכן ✓" };
 }
@@ -26,13 +35,21 @@ export async function saveTemplate(name: string, layout: unknown): Promise<Resul
   if (!("layout" in r)) return r;
   const n = String(name ?? "").trim().slice(0, MAX_TEXT);
   if (!n) return { ok: false, message: "יש לתת שם לתבנית" };
-  await store.saveTemplate(n, r.layout);
+  try {
+    await store.saveTemplate(n, r.layout);
+  } catch (e) {
+    return failed(e);
+  }
   return { ok: true, message: `התבנית "${n}" נשמרה ✓`, templates: await store.getTemplates() };
 }
 
 export async function deleteTemplate(name: string): Promise<Result> {
   if (!(await auth())) return { ok: false, message: "יש להתחבר מחדש" };
-  await store.deleteTemplate(String(name));
+  try {
+    await store.deleteTemplate(String(name));
+  } catch (e) {
+    return failed(e);
+  }
   return { ok: true, message: "התבנית נמחקה", templates: await store.getTemplates() };
 }
 

@@ -1,11 +1,17 @@
 "use server";
 import { AuthError } from "next-auth";
-import { signIn } from "@/auth";
+import { admins, signIn } from "@/auth";
 
 export type LoginState = { error: string; username: string } | null;
 
 export async function login(_: LoginState, form: FormData): Promise<LoginState> {
   const username = String(form.get("username") ?? "");
+  if (admins().size === 0) {
+    return {
+      error: "לא הוגדר מנהל. ב־Vercel הוסיפו משתנה ADMIN_USERS עם הערך שם:סיסמה (למשל pini:123) ופרסו מחדש (Redeploy).",
+      username,
+    };
+  }
   try {
     await signIn("credentials", {
       username,
